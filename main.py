@@ -2,7 +2,7 @@ import constants
 import numpy as np
 import force_u
 import conversions
-from test import Forces
+from tests.test import Forces
 
 
 l = constants.el
