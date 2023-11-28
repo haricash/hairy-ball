@@ -9,7 +9,7 @@ l = constants.el
 RADIUS, HEIGHT = constants.RADIUS, constants.HEIGHT
 
 
-force_layer_sph = Forces().rotation()
+force_layer_sph = Forces().neutral()
 force_layer_vsh = conversions.f_to_VSH(*force_layer_sph)
 
 def main():
