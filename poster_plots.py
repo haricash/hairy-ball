@@ -19,7 +19,8 @@ files = ['output_r3.npy',
          'output_5r3.npy', 
          'output_6r3.npy']
 
-file = files[2]
+# file = files[2]
+file = 'output.npy'
 
 l = np.linspace(-RADIUS-3*HEIGHT, RADIUS+3*HEIGHT, 21)
 
@@ -27,18 +28,13 @@ X, Y, Z = np.meshgrid(l,l,l)
 
 
 R = np.sqrt(X**2 + Y**2 + Z**2)
-THETA = np.arccos(np.nan_to_num(Z/R))
-PHI = -np.arctan2(Y,X) + 3*np.pi/2
+THETA = np.nan_to_num(np.arccos(Z/R))
+PHI = np.arctan2(Y,X)
 
 l,m = constants.el, constants.em
 
 
 Ax = Ay = Az = np.zeros_like(THETA, dtype=np.complex128)
-
-
-
-def cot(x):
-    return -np.tan(x + np.pi/2)
 
 length = len(L)
 
@@ -58,7 +54,7 @@ def one_iter(file):
         m = M[idx]
     
         idhu = np.nan_to_num(1j*m*sph_harm(m,l,PHI, THETA)/np.sin(THETA))
-        adhu = np.nan_to_num(m*cot(THETA)*sph_harm(m,l,PHI, THETA)+np.sqrt((l-m)*(l+m+1))*np.exp(-1j*PHI)*sph_harm(m+1,l,PHI, THETA))
+        adhu = np.nan_to_num(m/np.nan_to_num(np.tan(THETA),nan=np.inf)*sph_harm(m,l,PHI, THETA)+np.sqrt((l-m)*(l+m+1))*np.exp(-1j*PHI)*sph_harm(m+1,l,PHI, THETA))
     
         A_r += np.nan_to_num(alm*sph_harm(m,l, PHI, THETA))
         A_t += np.nan_to_num(blm*adhu - clm*idhu/R)
@@ -75,7 +71,21 @@ A_x, A_y, A_z = one_iter(folder+file)
 # Ay = Ay + A_y
 # Az = Az + A_z
 
-plt.quiver(Z[11,:,:], X[11,:,:], A_z[:,:,11].real, A_x[:,:,11].real)
+Sy = A_x[:,11,:].real
+Sx = A_z[:,11,:].real
+
+ex = Z[11,:,:]
+why = X[11,:,:]
+
+Rad = np.sqrt(ex**2 + why**2)
+
+Sx[Rad<10]=np.nan
+Sy[Rad<10]=np.nan
+
+
+plt.streamplot(ex, why, Sx, Sy)
+disc = plt.Circle((0,0), radius=10, fc='k')
+plt.gca().add_patch(disc)
 
 # fig = plt.figure()
 # ax = fig.add_subplot(projection='3d')
