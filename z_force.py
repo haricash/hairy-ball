@@ -4,22 +4,33 @@ import constants
 # When dealing with vector fields, write it down as (Vr, Vt, Vp)
 # This will be easy when we want to calculate derivatives as well!
 
-RHO_C = None
-ZETA = None
-phi_array = None # This would be the array of phi values at a given instant
+RHO_C = 1
+ZETA = 1
+phi_array = np.linspace(0,2*np.pi,100)
 
 
 const = constants.FFT(phi_array)
+
+def evaluate_m(f, m):
+    idx = list(f[1]).index(m)
+    return f[0][idx]
+
+# This needs to be made sure that it works over an array where we have our Z values
 
 
 def Z_to_traction_force(Z, v, m):
     """
         This function will compute the force given the value of the order parameter
+        for some order m, which is also the order of the Fourier series
     """
-    force = RHO_C * ZETA * (const.c_tilde(m) - const.D_tilde(m)) * Z
-    stress = (const.E_tilde - np.dot(const.G_tilde, v)) * Z
+    force_term = (evaluate_m(const.c_tilde(),m) - np.tensordot(evaluate_m(const.D_tilde(),m),v,axes=1)) * Z
+    stress = (evaluate_m(const.E_tilde(),m) - np.dot(evaluate_m(const.G_tilde(),m), v)) * Z
     stress_term = np.sum(np.gradient(stress))
 
-    # Then sum each over all m
+    return RHO_C * ZETA * (force_term + stress_term)
 
-    pass
+trial_Z = np.random.rand(100,100)
+vel = np.zeros((100,100))
+m = 2.
+
+Z_to_traction_force(trial_Z, vel, m)

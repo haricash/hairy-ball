@@ -24,65 +24,83 @@ b = 1
 Omega = 1
 m = None
 
-# def tangent(theta):
-#     return np.array([-np.sin(theta), np.cos(theta)])
+def _tangent(theta):
+    return np.array([-np.sin(theta), np.cos(theta)])
 
-# def normal(theta):
-#     return np.array([np.cos(theta), np.sin(theta)])
+def _normal(theta):
+    return np.array([np.cos(theta), np.sin(theta)])
 
-# def a(theta):
-#     return tangent(theta)/(b*Omega)
+def _a(theta):
+    return _tangent(theta)/(b*Omega)
 
-# def B(theta):
-#     return np.outer(tangent(theta), normal(theta))/Omega
+def _B(theta):
+    return np.tensordot(_tangent(theta), _normal(theta), axes=0)/Omega
 
-# def c(theta):
-#     return b*Omega*tangent(theta)
+def _c(theta):
+    return b*Omega*_tangent(theta)
 
-# def D(theta):
-#     return np.outer(normal(theta), normal(theta))
+def _D(theta):
+    return np.eye(2) - np.tensordot(_tangent(theta), _tangent(theta), axes=0)
 
-# def E(theta):
-#     return b*Omega*np.outer(normal(theta), tangent(theta))
+def _E(theta):
+    return b*Omega*np.tensordot(_normal(theta), _tangent(theta), axes=0)
 
-# def G(theta):
-#     NORMAL = normal(theta)
-#     return 2*np.outer(np.outer(NORMAL, NORMAL), NORMAL)
-
+def _G(theta):
+    return np.tensordot(_normal(theta), np.eye(2) - np.tensordot(_tangent(theta), _tangent(theta), axes=0), axes=0)
 
 # # This currently will evaluate the FFT for each m
 # # If we already know how many m we will be using, 
 # # we can rewrite this to directly compute only so
 # # many values and store them when the class is instantiated
 
-# class FFT:
-#     def __init__(self, phi):
-#         """
-#             This phi array has 3 spatial directions and along
-#             a fourth direction it has how the phi varies
-#         """
-#         self.phi = phi
+# Rewrite to make it less clunky, use one function and write them all
 
-#     def a_tilde(self):
-#         arr = np.fft.fft(a(self.phi), axis=-1)
-#         return np.fft.fft(a(self.phi), axis=-1), np.fft.fftfreq(a(self.phi).shape[-1])
+class FFT:
+    def __init__(self, phi):
+        """
+            An array for how phi varies
+        """
+        self.phi = phi
+
+    def array_iter(self,f):
+        ret_list = []
+        for phi in self.phi:
+            ret_list.append(f(phi))
+        
+        return np.array(ret_list)
+
+    def a_tilde(self):
+        a = self.array_iter(_a)
+        ms = np.fft.fftfreq(a(self.phi).shape[0])
+        ms = ms/ms[1]
+        return np.fft.fft(a(self.phi), axis=0), ms
     
-#     def B_tilde(self, m):
-#         arr = np.fft.fft(B(self.phi), axis=-1)
-#         return np.fft.fft(B(self.phi), axis=-1), np.fft.fftfreq(B(self.phi).shape[-1])
+    def B_tilde(self):
+        B = self.array_iter(_B)
+        ms = np.fft.fftfreq(B(self.phi).shape[0])
+        ms = ms/ms[1]
+        return np.fft.fft(B(self.phi), axis=0), ms
     
-#     def c_tilde(self, m):
-#         arr = np.fft.fft(c(self.phi), axis=-1)
-#         return np.fft.fft(c(self.phi), axis=-1), np.fft.fftfreq(c(self.phi).shape[-1])
+    def c_tilde(self):
+        c = self.array_iter(_c)
+        ms = np.fft.fftfreq(c(self.phi).shape[0])
+        ms = ms/ms[1]
+        return np.fft.fft(c(self.phi), axis=0), ms
+
+    def D_tilde(self):
+        D = self.array_iter(_D)
+        ms = np.fft.fftfreq(D(self.phi).shape[0])
+        ms = ms/ms[1]
+        return np.fft.fft(D(self.phi), axis=0), ms
     
-#     def D_tilde(self, m):
-#         arr = np.fft.fft(D(self.phi), axis=-1)
-#         return np.fft.fft(D(self.phi), axis=-1), np.fft.fftfreq(D(self.phi).shape[-1])
+    def E_tilde(self):
+        E = self.array_iter(_E)
+        ms = np.fft.fftfreq(E(self.phi).shape[0])
+        ms = ms/ms[1]
+        return np.fft.fft(E(self.phi), axis=0), ms
     
-#     def E_tilde(self, m):
-#         arr = np.fft.fft(E(self.phi), axis=-1)
-#         return np.fft.fft(E(self.phi), axis=-1), np.fft.fftfreq(E(self.phi).shape[-1])
-    
-#     def G_tilde(self, m):
-#         arr = np.fft.fft(G(self.phi), axis=-1)
-#         return np.fft.fft(G(self.phi), axis=-1), np.fft.fftfreq(G(self.phi).shape[-1])
+    def G_tilde(self):
+        G = self.array_iter(_G)
+        ms = np.fft.fftfreq(G(self.phi).shape[0])
+        ms = ms/ms[1]
+        return np.fft.fft(G(self.phi), axis=0), ms

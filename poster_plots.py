@@ -84,6 +84,7 @@ Sy[Rad<10]=np.nan
 
 
 plt.streamplot(ex, why, Sx, Sy)
+plt.xlabel()
 disc = plt.Circle((0,0), radius=10, fc='k')
 plt.gca().add_patch(disc)
 
