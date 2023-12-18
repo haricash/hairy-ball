@@ -71,36 +71,36 @@ class FFT:
 
     def a_tilde(self):
         a = self.array_iter(_a)
-        ms = np.fft.fftfreq(a(self.phi).shape[0])
+        ms = np.fft.fftfreq(a.shape[0])
         ms = ms/ms[1]
-        return np.fft.fft(a(self.phi), axis=0), ms
+        return np.fft.fft(a, axis=0), ms
     
     def B_tilde(self):
         B = self.array_iter(_B)
-        ms = np.fft.fftfreq(B(self.phi).shape[0])
+        ms = np.fft.fftfreq(B.shape[0])
         ms = ms/ms[1]
-        return np.fft.fft(B(self.phi), axis=0), ms
+        return np.fft.fft(B, axis=0), ms
     
     def c_tilde(self):
         c = self.array_iter(_c)
-        ms = np.fft.fftfreq(c(self.phi).shape[0])
+        ms = np.fft.fftfreq(c.shape[0])
         ms = ms/ms[1]
-        return np.fft.fft(c(self.phi), axis=0), ms
+        return np.fft.fft(c, axis=0), ms
 
     def D_tilde(self):
         D = self.array_iter(_D)
-        ms = np.fft.fftfreq(D(self.phi).shape[0])
+        ms = np.fft.fftfreq(D.shape[0])
         ms = ms/ms[1]
-        return np.fft.fft(D(self.phi), axis=0), ms
+        return np.fft.fft(D, axis=0), ms
     
     def E_tilde(self):
         E = self.array_iter(_E)
-        ms = np.fft.fftfreq(E(self.phi).shape[0])
+        ms = np.fft.fftfreq(E.shape[0])
         ms = ms/ms[1]
-        return np.fft.fft(E(self.phi), axis=0), ms
+        return np.fft.fft(E, axis=0), ms
     
     def G_tilde(self):
         G = self.array_iter(_G)
-        ms = np.fft.fftfreq(G(self.phi).shape[0])
+        ms = np.fft.fftfreq(G.shape[0])
         ms = ms/ms[1]
-        return np.fft.fft(G(self.phi), axis=0), ms
+        return np.fft.fft(G, axis=0), ms
