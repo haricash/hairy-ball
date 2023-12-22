@@ -1,5 +1,8 @@
+"""
+    To be continued - the correctv divergence operator
+"""
 import numpy as np
-import constants
+import tildes
 
 # When dealing with vector fields, write it down as (Vr, Vt, Vp)
 # This will be easy when we want to calculate derivatives as well!
@@ -8,12 +11,16 @@ RHO_C = 1
 ZETA = 1
 phi_array = np.linspace(0,2*np.pi,100)
 
-
-const = constants.FFT(phi_array)
-
-def evaluate_m(f, m):
-    idx = list(f[1]).index(m)
-    return f[0][idx]
+def m_extractor(f,m):
+    """
+        Gives the phase parameters for given m value
+    """
+    fun = tildes.tilde(f,tildes.phi_array)
+    m_size = fun.shape[0]
+    m_array = np.fft.fftfreq(m_size)
+    m_array = m_array/m_array[1]
+    idx, = np.where(m_array == m)
+    return fun[idx]
 
 def handy_mul(A, B):
     """
@@ -40,9 +47,11 @@ def Z_to_traction_force(Z, v, m):
         so we slice it accordingly
     """
     v = v[1:,:,:]
+    _c = m_extractor(tildes.c,m)
+    _D = m_extractor(tildes.D,m)
 
-    force_term = (evaluate_m(const.c_tilde(),m) - handy_mul(evaluate_m(const.D_tilde(),m), v)) * Z
-    stress = (evaluate_m(const.E_tilde(),m) - np.dot(evaluate_m(const.G_tilde(),m), v)) * Z
+    force_term = (_c.reshape(2) - np.matmul(_D , v.reshape(2,-1)).reshape(-1,2)).reshape(2,100,100) * Z
+    stress = (m_extractor(tildes.E,m).reshape(2,2) - (np.tensordot(m_extractor(tildes.G,m).reshape(2,2,2), v, axes=1)).reshape(-1,2,2)).reshape(2,2,100,100) * Z
     stress_term = np.sum(np.gradient(stress))
 
     return RHO_C * ZETA * (force_term + stress_term)
@@ -51,4 +60,4 @@ trial_Z = np.random.rand(100,100)
 vel = np.zeros((3,100,100))
 m = 2.
 
-Z_to_traction_force(trial_Z, vel, m)
+F = Z_to_traction_force(trial_Z, vel, m)
