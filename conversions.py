@@ -71,7 +71,6 @@ def sph_divergence(field):
     """
         Computes the divergence of the input spherical coordinate vector field
     """
-    Ax, Ay, Az = sph_to_cart(*field)
-    ### sp is the difference in the coordinate position
-    return np.sum(np.sum(np.array([np.gradient(f[i],sp) for i in range(3)]), axis=0),axis=0)
-
+    fld = list(sph_to_cart(*field))
+    sp = 1.
+    return np.sum(np.sum(np.array([np.gradient(fld[i],sp) for i in range(3)]), axis=0),axis=0)
