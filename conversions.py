@@ -66,3 +66,12 @@ def f_to_VSH(f_r, f_t, f_p):
     f = np.array([f_r, f_t, f_p])
     f_vsh = conversions.spat_to_VSH(*f)
     return np.array(f_vsh)
+
+def sph_divergence(field):
+    """
+        Computes the divergence of the input spherical coordinate vector field
+    """
+    Ax, Ay, Az = sph_to_cart(*field)
+    ### sp is the difference in the coordinate position
+    return np.sum(np.sum(np.array([np.gradient(f[i],sp) for i in range(3)]), axis=0),axis=0)
+

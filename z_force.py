@@ -46,12 +46,13 @@ def Z_to_traction_force(Z, v, m):
         The velocity is presented with three coordinates on a 2d spherical surface, 
         so we slice it accordingly
     """
-    v = v[1:,:,:]
     _c = m_extractor(tildes.c,m)
     _D = m_extractor(tildes.D,m)
+    _E = m_extractor(tildes.E,m)
+    _G = m_extractor(tildes.G,m)
 
-    force_term = (_c.reshape(2) - np.matmul(_D , v.reshape(2,-1)).reshape(-1,2)).reshape(2,100,100) * Z
-    stress = (m_extractor(tildes.E,m).reshape(2,2) - (np.tensordot(m_extractor(tildes.G,m).reshape(2,2,2), v, axes=1)).reshape(-1,2,2)).reshape(2,2,100,100) * Z
+    force_term = (_c.reshape(3) - np.matmul(_D , v.reshape(3,-1)).reshape(-1,3)).reshape(3,100,100) * Z
+    stress = (_E.reshape(3,3) - (np.tensordot(_G.reshape(3,3,3), v, axes=1)).reshape(-1,3,3)).reshape(3,3,100,100) * Z
     stress_term = np.sum(np.gradient(stress))
 
     return RHO_C * ZETA * (force_term + stress_term)
